@@ -6,7 +6,7 @@
  * @version 1.3.0 (2013-06-04)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
-class KNumber
+class KNumberHelper
 {
     // ------------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ class KNumber
      * @param boolean $strict See check_integer()
      * @return int|float|mixed
      */
-    public static function makeInteger($value, $default = 0, $strict)
+    public static function makeInteger($value, $default = 0, $strict = false)
     {
         return (self::checkInteger($value, $strict)) ? $value + 0 : $default;
     }

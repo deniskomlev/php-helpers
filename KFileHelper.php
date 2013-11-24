@@ -3,10 +3,10 @@
 /**
  * Helper functions for working with files and directories.
  *
- * @version 1.3.1 (2013-05-28)
+ * @version 1.3.2 (2013-05-28)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
-class KFile
+class KFileHelper
 {
     // ------------------------------------------------------------------------
 
@@ -84,21 +84,40 @@ class KFile
     // ------------------------------------------------------------------------
 
     /**
-     * Removes file extension from given file name.
+     * Returns list of directories in directory.
+     *
+     * @param string $path
+     * @return array
      */
-    public static function stripExtension($file_name)
+    public static function getDirectoryList($path)
     {
-        return basename($file_name, '.'.self::extension($file_name));
+        $path = self::trimSlashes($path, false);
+        return is_dir($path) ? glob($path . '/*', GLOB_ONLYDIR) : false;
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * Returns the file extension.
+     * Removes the extension from file name.
      */
-    public static function extension($file_name)
+    public static function stripExtension($filename)
     {
-        return pathinfo($file_name, PATHINFO_EXTENSION);
+        $extension = self::extension($filename);
+        return (!is_null($extension))
+            ? preg_replace('/^(.*?)\.[^\.]*$/', '$1', $filename)
+            : $filename;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Returns the file extension. NULL if no extension, empty string if
+     * filename ends with dot symbol.
+     */
+    public static function extension($filename)
+    {
+        $pathinfo = pathinfo($filename);
+        return isset($pathinfo['extension']) ? $pathinfo['extension'] : null;
     }
 
     // ------------------------------------------------------------------------
@@ -178,5 +197,28 @@ class KFile
         }
 
         if (is_dir($dir)) @rmdir($dir);
+    }
+
+    // ------------------------------------------------------------------------
+
+    public static function incrementFileName($filename, $delimeter = '_')
+    {
+        $extension = self::extension($filename);
+        $parts = explode($delimeter, self::stripExtension($filename));
+
+        if (($count = count($parts)) > 1) {
+            $number = $parts[$count - 1];
+            if (preg_match('/^\d+$/', $number))
+                $parts[$count - 1] = $number + 1;
+            else
+                $parts[] = 1;
+        } else {
+            $parts[] = 1;
+        }
+
+        $filename = implode($delimeter, $parts);
+        if (!is_null($extension))
+            $filename .= '.' . $extension;
+        return $filename;
     }
 }

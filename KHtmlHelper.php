@@ -6,7 +6,7 @@
  * @version 1.2.1 (2013-06-06)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
-class KHtml
+class KHtmlHelper
 {
     // ------------------------------------------------------------------------
 

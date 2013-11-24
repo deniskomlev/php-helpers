@@ -6,7 +6,7 @@
  * @version 1.2 (2013-05-29)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
-class KDateTime
+class KDateTimeHelper
 {
     private static $_monthNames = array(
         'en'=>array(

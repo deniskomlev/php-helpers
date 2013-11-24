@@ -6,7 +6,7 @@
  * @version 1.7.0 (2013-05-21)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
-class KArray
+class KArrayHelper
 {
     private static $_sort_column = null;
     private static $_sort_direction = null;
@@ -42,10 +42,11 @@ class KArray
     {
         $result = array();
         foreach ($keys as $key) {
-            if (is_array($array) && array_key_exists($key, $array))
+            if (is_array($array) && array_key_exists($key, $array)) {
                 $result[$key] = $array[$key];
-            else
-                if ($keep_null_keys) $result[$key] = $default;
+            } else {
+                if ($keep_null_keys) { $result[$key] = $default; }
+            }
         }
         return $result;
     }
@@ -63,8 +64,9 @@ class KArray
      */
     public static function path($array, $path, $default = null, $delimeter = '.')
     {
-        if (!is_array($array))
+        if (!is_array($array)) {
             return $default;
+        }
 
         $keys = explode($delimeter, $path);
 
@@ -72,10 +74,12 @@ class KArray
             $key = array_shift($keys);
 
             if (isset($array[$key])) {
-                if ($keys)
+                if ($keys) {
                     $array = $array[$key];  // dig deeper
-                else
+                }
+                else {
                     return $array[$key];  // requested value is found
+                }
             }
             else {
                 break;  // unable to dig deeper
@@ -98,7 +102,8 @@ class KArray
      */
     public static function override($array1, $array2)
     {
-        foreach ($array1 as $key => $value) {
+        foreach ($array1 as $key => $value)
+        {
             $array1[$key] = Arr::element($array2, $key, $value);
         }
         return $array1;
@@ -175,10 +180,12 @@ class KArray
         if (is_array($array)) {
             $values = array_values($array);
             foreach ($values as $value) {
-                if (is_array($value))
+                if (is_array($value)) {
                     $result = array_merge($result, self::flatten($value));
-                else
+                }
+                else {
                     $result[] = $value;
+                }
             }
         }
 
@@ -252,22 +259,22 @@ class KArray
      *
      * Input array should have following structure:
      *
-     * [
-     *   0 => ['id' => 1, 'parent' => 0],
-     *   1 => ['id' => 2, 'parent' => 1],
-     *   2 => ['id' => 3, 'parent' => 0],
-     *   3 => ['id' => 4, 'parent' => 1]
-     * ]
+     * array {
+     *     [0] => array { [id] => 1, [parent] => 0 }
+     *     [1] => array { [id] => 2, [parent] => 1 }
+     *     [2] => array { [id] => 3, [parent] => 0 }
+     *     [3] => array { [id] => 4, [parent] => 1 }
+     * }
      *
      * Returning array from above example will be:
      *
-     * [
-     *   0 => ['id' => 1, 'parent' => 0, 'children' => [
-     *     1 => ['id' => 2, 'parent' => 1],
-     *     3 => ['id' => 4, 'parent' => 1]
-     *   ]
-     *   2 => ['id' => 3, 'parent' => 0]
-     * ]
+     * array {
+     *     [0] => array { [id] => 1, [parent] => 0, [children] => array {
+     *         [1] => array { [id] => 2, [parent] => 1 }
+     *         [3] => array { [id] => 4, [parent] => 1 }
+     *     }
+     *     [2] => array { [id] => 3, [parent] => 0 }
+     * }
      *
      * @param array $input_array Input array
      * @param mixed $id_key Name of the array key references to record id

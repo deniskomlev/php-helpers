@@ -3,11 +3,21 @@
 /**
  * Helper class for working with text data.
  *
- * @version 1.3.0 (2013-05-21)
+ * @version 1.3.1 (2013-05-21)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
-class KText
+class KTextHelper
 {
+    // ------------------------------------------------------------------------
+
+    /**
+     * Avoid unobvious results when using something like empty('0').
+     */
+    public static function isEmptyString($string)
+    {
+        return strcmp($string, '') === 0;
+    }
+
     // ------------------------------------------------------------------------
 
     /**
@@ -117,5 +127,44 @@ class KText
         }
 
         return $output;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Ellipsize string (adapted from CodeIgniter Text helper)
+     *
+     * This function will strip tags from a string, split it at a defined maximum
+     * length, and insert an ellipsis.
+     *
+     * The first parameter is the string to ellipsize, the second is the number
+     * of characters in the final string. The third parameter is where in the string
+     * the ellipsis should appear from 0 - 1, left to right. For example. a value
+     * of 1 will place the ellipsis at the right of the string, .5 in the middle,
+     * and 0 at the left.
+     *
+     * @param	string		string to ellipsize
+     * @param	integer		max length of string
+     * @param	mixed		int (1|0) or float, .5, .2, etc for position to split
+     * @param	string		ellipsis ; Default '...'
+     * @return	string		ellipsized string
+     */
+    public static function ellipsize($string, $maxLength, $position = 1, $ellipsis = '&hellip;')
+    {
+        $string = trim(strip_tags($string));
+
+        // Is the string long enough to ellipsize?
+        if (mb_strlen($string, 'UTF-8') <= $maxLength)
+            return $string;
+
+        $beg = mb_substr($string, 0, floor($maxLength * $position), 'UTF-8');
+        $position = ($position > 1) ? 1 : $position;
+
+        if ($position === 1)
+            $end = mb_substr($string, 0, -($maxLength - mb_strlen($beg, 'UTF-8')), 'UTF-8');
+        else
+            $end = mb_substr($string, -($maxLength - mb_strlen($beg, 'UTF-8')), 'UTF-8');
+
+        return $beg.$ellipsis.$end;
     }
 }
