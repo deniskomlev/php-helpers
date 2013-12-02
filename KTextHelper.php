@@ -3,7 +3,7 @@
 /**
  * Helper class for working with text data.
  *
- * @version 1.3.1 (2013-05-21)
+ * @version 1.3.2 (2013-12-02)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
 class KTextHelper
@@ -111,7 +111,7 @@ class KTextHelper
     // ------------------------------------------------------------------------
 
     /**
-     * Removes first occurence of "more" tag.
+     * Removes first occurrence of "more" tag.
      */
     public static function stripMoreTag($text, $more_tag = '<!--more-->', $encoding = 'UTF-8')
     {
@@ -143,28 +143,62 @@ class KTextHelper
      * of 1 will place the ellipsis at the right of the string, .5 in the middle,
      * and 0 at the left.
      *
-     * @param	string		string to ellipsize
-     * @param	integer		max length of string
-     * @param	mixed		int (1|0) or float, .5, .2, etc for position to split
-     * @param	string		ellipsis ; Default '...'
-     * @return	string		ellipsized string
+     * @param string $string the string to ellipsize
+     * @param integer $maxLength max length of the string
+     * @param mixed $position int (1|0) or float, .5, .2, etc for position to split
+     * @param string $ellipsis the end character (ellipsis by default)
+     * @return string
      */
-    public static function ellipsize($string, $maxLength, $position = 1, $ellipsis = '&hellip;')
+    public static function ellipsize($string, $maxLength, $position = 1, $ellipsis = '&#8230;')
     {
         $string = trim(strip_tags($string));
 
-        // Is the string long enough to ellipsize?
         if (mb_strlen($string, 'UTF-8') <= $maxLength)
             return $string;
 
-        $beg = mb_substr($string, 0, floor($maxLength * $position), 'UTF-8');
+        $begin = mb_substr($string, 0, floor($maxLength * $position), 'UTF-8');
         $position = ($position > 1) ? 1 : $position;
 
         if ($position === 1)
-            $end = mb_substr($string, 0, -($maxLength - mb_strlen($beg, 'UTF-8')), 'UTF-8');
+            $end = mb_substr($string, 0, -($maxLength - mb_strlen($begin, 'UTF-8')), 'UTF-8');
         else
-            $end = mb_substr($string, -($maxLength - mb_strlen($beg, 'UTF-8')), 'UTF-8');
+            $end = mb_substr($string, -($maxLength - mb_strlen($begin, 'UTF-8')), 'UTF-8');
 
-        return $beg.$ellipsis.$end;
+        return $begin.$ellipsis.$end;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Character Limiter (adapted from CodeIgniter Text helper)
+     *
+     * Limits the string based on the character count. Preserves complete words
+     * so the character count may not be exactly as specified.
+     *
+     * @param	string   $string
+     * @param	integer  $maxLength
+     * @param	string	 $ellipsis the end character (ellipsis by default)
+     * @return	string
+     */
+    public static function limitCharacters($string, $maxLength = 500, $ellipsis = '&#8230;')
+    {
+        $string = trim(strip_tags($string));
+
+        if (mb_strlen($string, 'UTF-8') <= $maxLength)
+            return $string;
+
+        $string = preg_replace('/\s+/', ' ', str_replace(array("\r\n", "\r", "\n"), ' ', $string));
+
+        if (mb_strlen($string, 'UTF-8') <= $maxLength)
+            return $string;
+
+        $output = '';
+        foreach (explode(' ', trim($string)) as $word) {
+            $output .= $word.' ';
+            if (mb_strlen($output, 'UTF-8') >= $maxLength) {
+                $output = trim($output);
+                return (mb_strlen($output, 'UTF-8') == mb_strlen($string, 'UTF-8')) ? $output : $output.$ellipsis;
+            }
+        }
     }
 }
