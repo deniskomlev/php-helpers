@@ -35,6 +35,7 @@ class KYiiHelper
     {
         if (isset($options['time'])) {
             $options['expire'] = time() + $options['time'];
+            unset($options['time']);
         }
         Yii::app()->request->cookies[$name] = new CHttpCookie($name, $value, $options);
     }
