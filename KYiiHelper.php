@@ -46,4 +46,16 @@ class KYiiHelper
     {
         Yii::app()->request->cookies->remove($name, $options);
     }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Converts the filesystem path to url.
+     */
+    static public function getUrlFromPath($path)
+    {
+        $path = KFileHelper::fixSeparator($path, '/');
+        $webroot = KFileHelper::fixSeparator(Yii::getPathOfAlias('webroot'), '/');
+        return Yii::app()->baseUrl . KTextHelper::trimPrefix($path, $webroot);
+    }
 }
