@@ -3,7 +3,7 @@
 /**
  * Helper class for working with text data.
  *
- * @version 1.3.2 (2013-12-02)
+ * @version 1.3.6 (2014-08-14)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
 class KTextHelper
@@ -170,35 +170,152 @@ class KTextHelper
     // ------------------------------------------------------------------------
 
     /**
-     * Character Limiter (adapted from CodeIgniter Text helper)
-     *
-     * Limits the string based on the character count. Preserves complete words
+     * Limits the string based on the character count. Tries to preserve complete words
      * so the character count may not be exactly as specified.
      *
-     * @param	string   $string
-     * @param	integer  $maxLength
-     * @param	string	 $ellipsis the end character (ellipsis by default)
-     * @return	string
+     * @param  string  $input
+     * @param  integer $maxLength
+     * @param  string  $ellipsis the end character (ellipsis by default)
+     * @return string
      */
-    public static function limitCharacters($string, $maxLength = 500, $ellipsis = '&#8230;')
+    public static function limitChars($input, $maxLength = 500, $ellipsis = '&#8230;')
     {
-        $string = trim(strip_tags($string));
+        $input = str_replace(array("\r\n", "\r", "\n"), ' ', $input);
+        $input = preg_replace('/\s+/', ' ', $input);
+        $input = trim($input);
 
-        if (mb_strlen($string, 'UTF-8') <= $maxLength)
-            return $string;
-
-        $string = preg_replace('/\s+/', ' ', str_replace(array("\r\n", "\r", "\n"), ' ', $string));
-
-        if (mb_strlen($string, 'UTF-8') <= $maxLength)
-            return $string;
+        if (self::length($input) <= $maxLength) {
+            return $input;
+        }
 
         $output = '';
-        foreach (explode(' ', trim($string)) as $word) {
-            $output .= $word.' ';
-            if (mb_strlen($output, 'UTF-8') >= $maxLength) {
-                $output = trim($output);
-                return (mb_strlen($output, 'UTF-8') == mb_strlen($string, 'UTF-8')) ? $output : $output.$ellipsis;
+        $words = explode(' ', $input);
+
+        foreach ($words as $index => $word) {
+            $tmp = trim($output . ' ' . $word);
+            if (self::length($tmp) > $maxLength) {
+                if ($index === 0 || ($maxLength - self::length($output) > 10)) {
+                    // By default, the last word should be omitted. But if
+                    // the result become too short (the last word was too long),
+                    // then do the "hard" limit regardless the words.
+                    $output = mb_substr($tmp, 0, $maxLength - 1);
+                }
+                // Try to avoid punctuation marks at the string end.
+                $output = trim(rtrim($output, '.,;:…'));
+                return $output . $ellipsis;
+            } else {
+                $output = $tmp;
             }
         }
+
+        return $output;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Returns array of unique chars used in a string and count of every char instance.
+     *
+     * @param  string $string the input string
+     * @return array the array where key is character and value is count
+     */
+    public static function countUniqueChars($string)
+    {
+        $uniqueChars = array();
+        if (is_string($string)) {
+            $length = mb_strlen($string, 'UTF-8');
+            for ($i = 0; $i < $length; $i++) {
+                $char = mb_substr($string, $i, 1, 'UTF-8');
+                if (!array_key_exists($char, $uniqueChars)) {
+                    $uniqueChars[$char] = 0;
+                }
+                $uniqueChars[$char]++;
+            }
+        }
+        return $uniqueChars;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Randomizes characters in string.
+     *
+     * @param  string $input the input string
+     * @return string
+     */
+    public static function shuffleString($input)
+    {
+        $result = $input;
+        $uniqueChars = self::countUniqueChars($input);
+
+        if (count($uniqueChars) > 1) {
+            do {
+                $array = array();
+                for ($i = 0; $i < self::length($input); $i++) {
+                    $array[] = self::char($i, $input);
+                }
+                shuffle($array);
+                $result = implode('', $array);
+            } while ($input === $result);
+        }
+
+        return $result;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Splits string and returns array of characters.
+     *
+     * @param  string $string
+     * @return string
+     */
+    public static function stringToArray($string)
+    {
+        $result = array();
+        for ($i = 0; $i < self::length($string); $i++) {
+            $result[] = self::char($i, $string);
+        }
+        return $result;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Joins array values and returns it as string.
+     *
+     * @param  array  $array
+     * @return string
+     */
+    public static function arrayToString($array)
+    {
+        return implode('', $array);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Returns the word length.
+     *
+     * @param  string $input the input string
+     * @return int
+     */
+    public static function length($input)
+    {
+        return mb_strlen($input, 'UTF-8');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Extracts the single word letter by index.
+     *
+     * @param  int    $i     character index starting from 0
+     * @param  string $input the input string
+     * @return string
+     */
+    public static function char($i, $input)
+    {
+        return mb_substr($input, $i, 1, 'UTF-8');
     }
 }

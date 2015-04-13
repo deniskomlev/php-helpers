@@ -3,7 +3,7 @@
 /**
  * HTML helper class.
  *
- * @version 1.2.1 (2013-06-06)
+ * @version 1.2.2 (2014-05-22)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
 class KHtmlHelper
@@ -13,17 +13,20 @@ class KHtmlHelper
     /**
      * Converts associative array to a string of attributes.
      *
-     * Input: array('id'=>'myid', 'class'=>'someclass')
-     * Output: id="myid" class="someclass"
+     * Input: array('id' => 'myid', 'class' => 'myclass', 'disabled' => null)
+     * Output: id="myid" class="myclass" disabled
      */
-    public static function attributes($vars)
+    public static function attributes($attributes)
     {
         $output = '';
 
-        if (is_array($vars) && !empty($vars)) {
-            foreach ($vars as $key => $value) {
+        if (is_array($attributes)) {
+            $params = array();
+            foreach ($attributes as $key => $value) {
                 $str = $key;
-                if ($value !== null) { $str .= '="'.$value.'"'; }
+                if ($value !== null) {
+                    $str .= '="' . (string) $value . '"';
+                }
                 $params[] = $str;
             }
             $output = implode(' ', $params);
@@ -63,22 +66,6 @@ class KHtmlHelper
         }
 
         return $output;
-    }
-
-    // ------------------------------------------------------------------------
-
-    public static function checked($condition)
-    {
-        if ($condition) return 'checked';
-        else return '';
-    }
-
-    // ------------------------------------------------------------------------
-
-    public static function selected($condition)
-    {
-        if ($condition) return 'selected';
-        else return '';
     }
 
     // ------------------------------------------------------------------------

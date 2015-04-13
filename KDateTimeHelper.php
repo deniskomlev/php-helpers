@@ -3,11 +3,12 @@
 /**
  * Helper class for working with date and time.
  *
- * @version 1.2 (2013-05-29)
+ * @version 1.3 (2015-04-13)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
 class KDateTimeHelper
 {
+
     private static $_monthNames = array(
         'en'=>array(
             1 =>array('January',   'Jan'),
@@ -110,17 +111,44 @@ class KDateTimeHelper
 
     // ------------------------------------------------------------------------
 
-    public static function getDaysInYear($year)
+    /**
+     * Returns count of days in given year.
+     *
+     * @param int $year
+     * @return int
+     */
+    public static function getNumberOfDaysInYear($year)
     {
-        return date('z', mktime(0, 0, 0, 12, 31, $year));
+        $year = (int) $year;
+        return self::isLeapYear($year) ? 366 : 365;
     }
 
     // ------------------------------------------------------------------------
 
-    public static function getMaxDayOfMonth($month)
+    /**
+     * Returns last day of given month. If year is specified, also checks
+     * for leap year.
+     *
+     * @param int $month
+     * @param int|bool $year
+     * @return int
+     * @throws Exception
+     */
+    public static function getLastMonthDay($month, $year = false)
     {
+        $month = (int) $month;
+
+        if ($month < 1 || $month > 12) {
+            throw new Exception('Month must be an integer between 1 and 12.');
+        }
+
         $daysInMonth = array(null,31,29,31,30,31,30,31,31,30,31,30,31);
-        return (isset($daysInMonth[$month])) ? $daysInMonth[$month] : null;
+
+        if ($year !== false && $month == 2) {
+            return (self::isLeapYear($year)) ? 29 : 28;
+        }
+
+        return $daysInMonth[$month];
     }
 
     // ------------------------------------------------------------------------
@@ -164,4 +192,63 @@ class KDateTimeHelper
 
         return ($age > 0) ? $age : 0;
     }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * (c) Yii Framework
+     *
+     * Checks for leap year, returns true if it is. No 2-digit year check. Also
+     * handles julian calendar correctly.
+     *
+     * @param integer $year year to check
+     * @return boolean true if is leap year
+     */
+    public static function isLeapYear($year)
+    {
+        $year = (int) $year;
+
+        if ($year % 4 != 0) {
+            return false;
+        }
+
+        if ($year % 400 == 0) {
+            return true;
+        }
+        // if gregorian calendar (>1582), century not-divisible by 400 is not leap
+        elseif ($year > 1582 && $year % 100 == 0 ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Returns difference in months between two dates (YYYY-MM-DD format).
+     *
+     * @param string $startDate
+     * @param string $endDate
+     * @return int|false
+     */
+    public static function monthsBetween($startDate, $endDate)
+    {
+        $result = false;
+
+        $splitStart = explode('-', $startDate);
+        $splitEnd = explode('-', $endDate);
+
+        if (is_array($splitStart) && is_array($splitEnd)) {
+            $difYears = $splitEnd[0] - $splitStart[0];
+            $difMonths = $splitEnd[1] - $splitStart[1];
+            $difDays = $splitEnd[2] - $splitStart[2];
+
+            $result = ($difDays > 0) ? $difMonths : $difMonths - 1;
+            $result += $difYears * 12;
+        }
+
+        return $result;
+    }
+
 }
