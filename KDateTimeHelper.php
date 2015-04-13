@@ -3,7 +3,7 @@
 /**
  * Helper class for working with date and time.
  *
- * @version 1.3 (2015-04-13)
+ * @version 1.4 (2015-04-13)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
 class KDateTimeHelper
@@ -227,6 +227,7 @@ class KDateTimeHelper
 
     /**
      * Returns difference in months between two dates (YYYY-MM-DD format).
+     * Day of month is not considered.
      *
      * @param string $startDate
      * @param string $endDate
@@ -242,10 +243,52 @@ class KDateTimeHelper
         if (is_array($splitStart) && is_array($splitEnd)) {
             $difYears = $splitEnd[0] - $splitStart[0];
             $difMonths = $splitEnd[1] - $splitStart[1];
-            $difDays = $splitEnd[2] - $splitStart[2];
 
-            $result = ($difDays > 0) ? $difMonths : $difMonths - 1;
-            $result += $difYears * 12;
+            $result = $difMonths + ($difYears * 12);
+        }
+
+        return $result;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Change the given date by adding or subtracting specified amount of months.
+     * Only month and year are modified; day of month doesn't considered.
+     *
+     * @param string $date in format "YYYY-MM-DD"
+     * @param int $numMonths how many months to add (negative values to subtract)
+     * @return string|false
+     * @throws Exception
+     */
+    public static function increaseMonth($date, $numMonths)
+    {
+        $result = false;
+
+        $split = explode('-', $date);
+
+        if (is_array($split)) {
+            $year = $split[0];
+            $month = $split[1] + (int) $numMonths;
+            $day = $split[2];
+
+            if ($month > 12) {
+                $yearFix = (int)floor($month / 12);
+                $year = $year + $yearFix;
+                $month = $month - (12 * $yearFix);
+            } elseif ($month < 1) {
+                $yearFix = (int)ceil((abs($month) + 1) / 12);
+                $year = $year - $yearFix;
+                $month = (12 * $yearFix) - abs($month);
+            }
+
+            $lastMonthDay = self::getLastMonthDay($month, $year);
+
+            if ($day > $lastMonthDay) {
+                $day = $lastMonthDay;
+            }
+
+            $result = sprintf("%04d-%02d-%02d", $year, $month, $day);
         }
 
         return $result;
