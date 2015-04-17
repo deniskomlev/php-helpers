@@ -3,7 +3,7 @@
 /**
  * Helper class for working with date and time.
  *
- * @version 1.4 (2015-04-13)
+ * @version 1.4.1 (2015-04-17)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
 class KDateTimeHelper
@@ -292,6 +292,20 @@ class KDateTimeHelper
         }
 
         return $result;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Returns DateTime object in UTC timezone.
+     *
+     * @param string $time
+     * @return DateTime
+     */
+    public static function getUtcDateTime($time = 'now')
+    {
+        $dateTime = new DateTime($time, new DateTimeZone('UTC'));
+        return $dateTime;
     }
 
 }
