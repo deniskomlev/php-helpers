@@ -3,7 +3,7 @@
 /**
  * Helper class for working with date and time.
  *
- * @version 1.4.1 (2015-04-17)
+ * @version 1.4.2 (2015-04-21)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
 class KDateTimeHelper
@@ -306,6 +306,19 @@ class KDateTimeHelper
     {
         $dateTime = new DateTime($time, new DateTimeZone('UTC'));
         return $dateTime;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Checks whether the give timezone identifier is valid.
+     *
+     * @param string $timeZone
+     * @return bool
+     */
+    public static function isValidTimeZone($timeZone)
+    {
+        return in_array($timeZone, DateTimeZone::listIdentifiers());
     }
 
 }
