@@ -3,14 +3,11 @@
 /**
  * Helper class for working with arrays.
  *
- * @version 1.7.0 (2013-05-21)
+ * @version 1.8.0 (2015-04-22)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
 class KArrayHelper
 {
-    private static $_sort_column = null;
-    private static $_sort_direction = null;
-    private static $_sort_method = null;
 
     // ------------------------------------------------------------------------
 
@@ -389,53 +386,6 @@ class KArrayHelper
     // ------------------------------------------------------------------------
 
     /**
-     * Sort two-dimensional array.
-     *
-     * @param array $table
-     * @param string|int $column
-     * @param string $direction
-     * @param string $method
-     * @return array
-     */
-    public static function sortTable($table, $column, $direction = 'asc', $method = 'numeric')
-    {
-        self::$_sort_column = $column;
-        self::$_sort_direction = (strtolower($direction) == 'desc') ? 'desc' : 'asc';
-        self::$_sort_method = (strtolower($method) == 'string') ? 'string' : 'numeric';
-
-        usort($table, array(__CLASS__, '_sortTableCompare'));
-
-        return $table;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Compare function for sort_table method.
-     *
-     * @param  array  $a  Row of the first array.
-     * @param  array  $b  Row of the second array.
-     * @return int
-     */
-    private static function _sortTableCompare($a, $b)
-    {
-        $column = self::$_sort_column;
-        $direction = self::$_sort_direction;
-        $method = self::$_sort_method;
-
-        if ($method == 'string') {
-            $result = strcmp($a[$column], $b[$column]);
-        } else {
-            $result = $a[$column] - $b[$column];
-        }
-
-        $result = ($result == 0) ? 0 : (($result > 0) ? 1 : -1);
-        return ($direction == 'asc') ? $result : -$result;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
      * Returns the values from a single column of the input array,
      * identified by the columnKey.
      *
@@ -473,4 +423,33 @@ class KArrayHelper
         }
         return $result;
     }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * (c) jimpoz at php.net
+     *
+     * Sort multidimensional array.
+     *
+     * $sorted_array = array_orderby($unsorted_array, 'column_1', SORT_DESC, 'column_2', SORT_ASC);
+     *
+     * @return array
+     */
+    public static function sortTable()
+    {
+        $args = func_get_args();
+        $data = array_shift($args);
+        foreach ($args as $n => $field) {
+            if (is_string($field)) {
+                $tmp = array();
+                foreach ($data as $key => $row)
+                    $tmp[$key] = $row[$field];
+                $args[$n] = $tmp;
+            }
+        }
+        $args[] = &$data;
+        call_user_func_array('array_multisort', $args);
+        return array_pop($args);
+    }
+
 }
