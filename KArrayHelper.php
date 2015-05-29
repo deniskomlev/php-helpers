@@ -3,7 +3,7 @@
 /**
  * Helper class for working with arrays.
  *
- * @version 1.8.0 (2015-04-22)
+ * @version 1.9.0 (2015-05-29)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
 class KArrayHelper
@@ -91,6 +91,20 @@ class KArrayHelper
     // ------------------------------------------------------------------------
 
     /**
+     * Exclude given keys from array.
+     *
+     * @param array $array input
+     * @param array $keys to exclude
+     * @return array
+     */
+    public static function excludeKeys(array $array, array $keys)
+    {
+        return array_diff_key($array, array_flip($keys));
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
      * Override values of array 1 with values of same keys of array 2.
      *
      * @param array $array1
@@ -101,7 +115,7 @@ class KArrayHelper
     {
         foreach ($array1 as $key => $value)
         {
-            $array1[$key] = Arr::element($array2, $key, $value);
+            $array1[$key] = self::element($array2, $key, $value);
         }
         return $array1;
     }
@@ -136,7 +150,7 @@ class KArrayHelper
      */
     public static function shiftElement(&$array, $key, $default = null)
     {
-        $element = Arr::element($array, $key, $default);
+        $element = self::element($array, $key, $default);
         unset($array[$key]);
         return $element;
     }
@@ -153,7 +167,7 @@ class KArrayHelper
      */
     public static function shiftElements(&$array, $keys, $default = null)
     {
-        $elements = Arr::elements($array, $keys, $default);
+        $elements = self::elements($array, $keys, $default);
         foreach ($keys as $key) {
             unset($array[$key]);
         }
@@ -375,7 +389,7 @@ class KArrayHelper
 
             if (!empty($row[$children_key])) {
                 $level++;
-                $result = array_merge($result, self::flatten_tree($row[$children_key], $children_key, $level_key));
+                $result = array_merge($result, self::flattenTree($row[$children_key], $children_key, $level_key));
             }
         }
 
