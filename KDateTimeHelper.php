@@ -3,7 +3,7 @@
 /**
  * Helper class for working with date and time.
  *
- * @version 1.5.0 (2015-06-02)
+ * @version 1.5.1 (2016-08-25)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
 class KDateTimeHelper
@@ -159,7 +159,6 @@ class KDateTimeHelper
      * @param string $date in format "YYYY-MM-DD"
      * @param int $numMonths how many months to add (negative values to subtract)
      * @return string|false
-     * @throws Exception
      */
     public static function increaseMonth($date, $numMonths)
     {
@@ -173,11 +172,14 @@ class KDateTimeHelper
             $day = $split[2];
 
             if ($month > 12) {
-                $yearFix = (int)floor($month / 12);
+                $yearFix = (int) floor($month / 12);
+                if ($month % 12 == 0) {
+                    $yearFix--;  // otherwise we will get month equal to 0 and next year
+                }
                 $year = $year + $yearFix;
                 $month = $month - (12 * $yearFix);
             } elseif ($month < 1) {
-                $yearFix = (int)ceil((abs($month) + 1) / 12);
+                $yearFix = (int) ceil((abs($month) + 1) / 12);
                 $year = $year - $yearFix;
                 $month = (12 * $yearFix) - abs($month);
             }

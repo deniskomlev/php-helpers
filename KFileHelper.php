@@ -1,9 +1,12 @@
 <?php
 
+namespace app\libs\helpers;
+
+
 /**
  * Helper functions for working with files and directories.
  *
- * @version 1.3.2 (2013-05-28)
+ * @version 1.3.3 (2015-01-05)
  * @author Denis Komlev <deniskomlev@hotmail.com>
  */
 class KFileHelper
@@ -111,8 +114,11 @@ class KFileHelper
     // ------------------------------------------------------------------------
 
     /**
-     * Returns the file extension. NULL if no extension, empty string if
-     * filename ends with dot symbol.
+     * Returns the file extension.
+	 *
+	 * @param string $filename
+	 * @return mixed the file extension (case sensitive to the given filename),
+	 * empty string if the filename ends with dot symbol, or NULL if the filename has no extension.
      */
     public static function extension($filename)
     {
